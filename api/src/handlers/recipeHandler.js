@@ -30,7 +30,8 @@ const getId = async (req, res) => {
 };
 //--------------- Post de Recipe ----------------------------
 const postRecipe = async (req, res) => {
-  const { title, image, summary, healthScore, instructions } = req.body;
+  const { title, image, summary, healthScore, instructions, created, diet } =
+    req.body;
 
   if (!title || !summary) {
     res.status(404).send("los datos name y summary son necesario");
@@ -41,7 +42,9 @@ const postRecipe = async (req, res) => {
         image,
         summary,
         healthScore,
-        instructions
+        instructions,
+        created,
+        diet
       );
       res.status(201).json(newRecipe);
     } catch (error) {

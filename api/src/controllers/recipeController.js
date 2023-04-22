@@ -79,10 +79,18 @@ const createRecipe = async (
   image,
   summary,
   healthScore,
-  intructions
+  instructions,
+  created
 ) => {
   console.log(Recipe);
-  await Recipe.create({ title, image, summary, healthScore, intructions });
+  await Recipe.create({
+    title,
+    image,
+    summary,
+    healthScore,
+    instructions,
+    created,
+  });
   console.log("Recipe created successfully");
 };
 module.exports = { createRecipe, getRecipebyId, getAllRecipe, recipeByName };
