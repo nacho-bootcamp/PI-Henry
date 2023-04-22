@@ -5,6 +5,8 @@ const {
   getAllRecipe,
 } = require("../controllers/recipeController");
 
+const { Recipe } = require("../db");
+
 //--------------buscar todos ------------------------
 const getAll = async (req, res) => {
   const { name } = req.query;
@@ -43,10 +45,13 @@ const postRecipe = async (req, res) => {
         summary,
         healthScore,
         instructions,
-        created,
-        diet
+        created
       );
-      res.status(201).json(newRecipe);
+      if (diet && diet.length > 0) {
+        const recipe = await Recipe.findByPk(newRecipe.id);
+        await recipe.addDiets(diet);
+      }
+      res.status(201).send("Creacion exitosa");
     } catch (error) {
       res.status(500).json({ error: error.message });
     }

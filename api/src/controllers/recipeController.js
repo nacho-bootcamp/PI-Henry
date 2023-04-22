@@ -1,12 +1,7 @@
 require("dotenv").config();
-const { Recipe } = require("../db");
+const { Recipe, Diet } = require("../db");
 const axios = require("axios");
 const { API_KEY, URL_BASE } = process.env;
-
-//------ todas las recetas ----------
-// busca de la base de datos
-//buscar de la api
-//unifica
 
 const cleanArray = (arr) =>
   arr.map((element) => {
@@ -34,7 +29,7 @@ const getAllRecipe = async () => {
 //----------por name ------------------
 const recipeByName = async (name) => {
   const baseRecipe = await Recipe.findAll({
-    where: { name: name },
+    where: { title: name },
   });
   const apiRecipeRaw = (
     await axios.get(`${URL_BASE}/complexSearch?apiKey=${API_KEY}&query=${name}`)
@@ -42,7 +37,9 @@ const recipeByName = async (name) => {
 
   const apiRecipe = cleanArray(apiRecipeRaw);
 
-  const filterRecipe = apiRecipe.filter((recipe) => recipe.name == name);
+  const filterRecipe = apiRecipe.filter((recipe) =>
+    recipe.title.toLowerCase().includes(name.toString().toLowerCase())
+  );
 
   return [...filterRecipe, ...baseRecipe];
 };
@@ -55,21 +52,24 @@ const getRecipebyId = async (id, source) => {
       ? await axios
           .get(`${URL_BASE}/${id}/information?key=${API_KEY}`)
           .then((response) => {
-            const { name, image, summary, healthScore, analyzedInstructions } =
+            const { title, image, summary, healthScore, analyzedInstructions } =
               response.data;
             recipeData = {
               id: id,
-              tile: name,
+              title: title,
               image: image,
               summary: summary,
               healthScore: healthScore,
               instructions: analyzedInstructions[0]?.steps?.map(
                 (step) => step.step
               ),
+              created: false,
             };
             return recipeData;
           })
-      : await Recipe.findByPk(id);
+      : await Recipe.findByPk(id, {
+          include: { model: Diet },
+        });
   return recipe;
 };
 
@@ -80,10 +80,10 @@ const createRecipe = async (
   summary,
   healthScore,
   instructions,
-  created
+  created,
+  diet
 ) => {
-  console.log(Recipe);
-  await Recipe.create({
+  const recipe = await Recipe.create({
     title,
     image,
     summary,
@@ -91,6 +91,8 @@ const createRecipe = async (
     instructions,
     created,
   });
-  console.log("Recipe created successfully");
+  if (diet && diet.length > 0) {
+    await recipe.addDiets(diet);
+  }
 };
 module.exports = { createRecipe, getRecipebyId, getAllRecipe, recipeByName };
