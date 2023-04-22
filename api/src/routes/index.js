@@ -6,9 +6,9 @@ const dietsRouter = require("./diet");
 
 const router = Router();
 
-router.use("/recipes", recipeRouter);
-router.use("/diets", dietsRouter);
 // Configurar los routers
 // Ejemplo: router.use('/auth', authRouter);
+router.use("/recipes", recipeRouter);
+router.use("/diets", dietsRouter);
 
 module.exports = router;
