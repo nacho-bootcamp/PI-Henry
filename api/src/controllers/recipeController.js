@@ -83,7 +83,7 @@ const createRecipe = async (
   created,
   diet
 ) => {
-  const recipe = await Recipe.create({
+  const creaRecipe = await Recipe.create({
     title,
     image,
     summary,
@@ -92,6 +92,7 @@ const createRecipe = async (
     created,
   });
   if (diet && diet.length > 0) {
+    const recipe = await Recipe.findByPk(creaRecipe.id);
     await recipe.addDiets(diet);
   }
 };
